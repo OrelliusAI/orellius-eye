@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://orellius.ai/thunder-eye-logo.png" alt="Thunder Eye" width="120" />
+  <img src="assets/orellius-logo.png" alt="Orellius" width="100" />
 </p>
 
 <h1 align="center">Thunder Eye</h1>
@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://github.com/Orellius/thunder-eye/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://www.npmjs.com/package/thunder-eye"><img src="https://img.shields.io/npm/v/thunder-eye.svg?color=blue" alt="npm" /></a>
   <a href="https://orellius.ai"><img src="https://img.shields.io/badge/by-Orellius.ai-05a0ef" alt="Orellius" /></a>
   <a href="https://github.com/Orellius/Thunder"><img src="https://img.shields.io/badge/ecosystem-Thunder-10b981" alt="Thunder" /></a>
   <img src="https://img.shields.io/badge/MCP-compatible-8b5cf6" alt="MCP Compatible" />
@@ -21,6 +20,21 @@
   An MCP server that gives AI coding agents (Claude Code, Cursor, Windsurf) visual perception of running desktop applications.<br/>
   Auto-detects the framework, captures screenshots, inspects UI trees, and finds elements — so the AI can actually <em>see</em> what you see.
 </p>
+
+## Install
+
+```bash
+npm install -g thunder-eye
+```
+
+Or clone and build locally:
+
+```bash
+git clone https://github.com/Orellius/thunder-eye.git
+cd thunder-eye
+npm install
+npm run build
+```
 
 ---
 

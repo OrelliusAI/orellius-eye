@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/thunder-eye"><img src="https://img.shields.io/npm/v/thunder-eye.svg?color=05a0ef" alt="npm" /></a>
   <a href="https://github.com/Orellius/thunder-eye/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://orellius.ai"><img src="https://img.shields.io/badge/by-Orellius.ai-05a0ef" alt="Orellius" /></a>
   <a href="https://github.com/Orellius/Thunder"><img src="https://img.shields.io/badge/ecosystem-Thunder-10b981" alt="Thunder" /></a>

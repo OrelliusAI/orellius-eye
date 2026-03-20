@@ -25,7 +25,74 @@ export async function listWindows(): Promise<WindowInfo[]> {
     return listLinuxWindows();
   }
 
+  if (platform === "win32") {
+    return listWindowsWindows();
+  }
+
   return [];
+}
+
+async function listWindowsWindows(): Promise<WindowInfo[]> {
+  const windows: WindowInfo[] = [];
+  const apps = await detectApps();
+
+  try {
+    const script = `
+      Add-Type @"
+      using System;
+      using System.Runtime.InteropServices;
+      using System.Text;
+      public class WindowHelper {
+        [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+        [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+        [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+        public struct RECT { public int Left, Top, Right, Bottom; }
+      }
+"@
+      Get-Process | Where-Object {$_.MainWindowHandle -ne 0} | ForEach-Object {
+        $hwnd = $_.MainWindowHandle
+        $rect = New-Object WindowHelper+RECT
+        [WindowHelper]::GetWindowRect($hwnd, [ref]$rect) | Out-Null
+        $fg = [WindowHelper]::GetForegroundWindow()
+        [PSCustomObject]@{
+          Title = $_.MainWindowTitle
+          X = $rect.Left
+          Y = $rect.Top
+          Width = $rect.Right - $rect.Left
+          Height = $rect.Bottom - $rect.Top
+          Focused = ($hwnd -eq $fg)
+          PID = $_.Id
+        }
+      } | ConvertTo-Json
+    `;
+    const result = execSync(`powershell -NoProfile -Command "${script}"`, {
+      timeout: 10000,
+      encoding: "utf-8",
+    });
+
+    const parsed: unknown = JSON.parse(result);
+    const list = Array.isArray(parsed) ? parsed : [parsed];
+
+    for (const win of list) {
+      if (!win.Title) continue;
+      const app = apps.find(a => a.pid === win.PID);
+      windows.push({
+        title: win.Title,
+        x: win.X ?? 0,
+        y: win.Y ?? 0,
+        width: win.Width ?? 0,
+        height: win.Height ?? 0,
+        focused: win.Focused ?? false,
+        framework: app?.framework ?? "unknown",
+        pid: win.PID ?? 0,
+      });
+    }
+  } catch (error) {
+    console.error("[thunder-eye] Windows listing error:", error);
+  }
+
+  return windows;
 }
 
 async function listMacOSWindows(): Promise<WindowInfo[]> {

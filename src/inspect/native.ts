@@ -12,7 +12,50 @@ export async function inspectNative(options: InspectOptions): Promise<string> {
     return inspectLinux(options);
   }
 
+  if (platform === "win32") {
+    return inspectWindows(options);
+  }
+
   return "Native UI inspection not yet supported on this platform. Use the screenshot tool instead.";
+}
+
+function inspectWindows(options: InspectOptions): string {
+  try {
+    // Use PowerShell with UI Automation to walk the element tree of the focused window
+    const maxDepth = options.maxDepth ?? 5;
+    const script = `
+      Add-Type -AssemblyName UIAutomationClient
+      Add-Type -AssemblyName UIAutomationTypes
+      $root = [System.Windows.Automation.AutomationElement]::RootElement
+      $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+
+      function Get-UITree($element, $depth, $maxDepth) {
+        if ($depth -ge $maxDepth) { return }
+        $name = $element.Current.Name
+        $type = $element.Current.ControlType.ProgrammaticName
+        $indent = "  " * $depth
+        if ($name) { Write-Output "$indent[$type] \`"$name\`"" }
+        else { Write-Output "$indent[$type]" }
+        $child = $walker.GetFirstChild($element)
+        while ($child -ne $null) {
+          Get-UITree $child ($depth + 1) $maxDepth
+          $child = $walker.GetNextSibling($child)
+        }
+      }
+
+      $focused = [System.Windows.Automation.AutomationElement]::FocusedElement
+      $topWindow = $walker.GetParent($focused)
+      if ($topWindow -eq $null) { $topWindow = $root }
+      Get-UITree $topWindow 0 ${maxDepth}
+    `;
+    const result = execSync(`powershell -NoProfile -Command "${script}"`, {
+      encoding: "utf-8",
+      timeout: 15000,
+    });
+    return result.trim() || "No UI elements found";
+  } catch (error) {
+    return `Failed to inspect UI on Windows: ${error}`;
+  }
 }
 
 function inspectMacOS(options: InspectOptions): string {

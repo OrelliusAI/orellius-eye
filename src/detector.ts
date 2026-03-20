@@ -9,6 +9,8 @@ export async function detectApps(): Promise<DetectedApp[]> {
     apps.push(...detectMacOS());
   } else if (platform === "linux") {
     apps.push(...detectLinux());
+  } else if (platform === "win32") {
+    apps.push(...detectWindows());
   }
 
   return apps;
@@ -158,6 +160,72 @@ function findDebugPort(pid: number): number | undefined {
     }
   }
 
+  return undefined;
+}
+
+function detectWindows(): DetectedApp[] {
+  const apps: DetectedApp[] = [];
+  try {
+    const script = `Get-Process | Where-Object {$_.MainWindowHandle -ne 0} | Select-Object ProcessName, Id, MainWindowTitle | ConvertTo-Json`;
+    const result = execSync(`powershell -NoProfile -Command "${script}"`, {
+      timeout: 10000,
+      encoding: "utf-8",
+    });
+
+    const processes: unknown = JSON.parse(result);
+    const list = Array.isArray(processes) ? processes : [processes];
+
+    for (const proc of list) {
+      if (!proc.ProcessName || !proc.MainWindowTitle) continue;
+      const framework = identifyFrameworkWindows(proc.ProcessName, proc.Id);
+      apps.push({
+        framework,
+        processName: proc.ProcessName,
+        pid: proc.Id,
+        windowTitle: proc.MainWindowTitle || proc.ProcessName,
+        debugPort: findDebugPortWindows(proc.Id),
+      });
+    }
+  } catch (error) {
+    console.error("[thunder-eye] Windows detection error:", error);
+  }
+  return apps;
+}
+
+function identifyFrameworkWindows(processName: string, pid: number): DetectedApp["framework"] {
+  const name = processName.toLowerCase();
+  if (name.includes("electron") || name === "code" || name === "discord" || name === "slack") return "electron";
+  if (name.includes("tauri")) return "tauri";
+  if (name.includes("flutter")) return "flutter";
+
+  // Check process command line for framework markers
+  try {
+    const cmdLine = execSync(
+      `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}').CommandLine"`,
+      { encoding: "utf-8", timeout: 3000 },
+    );
+    if (cmdLine.includes("electron")) return "electron";
+    if (cmdLine.includes("--remote-debugging-port")) return "electron";
+    if (cmdLine.includes("tauri")) return "tauri";
+    if (cmdLine.includes("flutter")) return "flutter";
+  } catch {
+    // Process may have exited or CIM query failed
+  }
+
+  return "unknown";
+}
+
+function findDebugPortWindows(pid: number): number | undefined {
+  try {
+    const cmdLine = execSync(
+      `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}').CommandLine"`,
+      { encoding: "utf-8", timeout: 3000 },
+    );
+    const match = cmdLine.match(/--remote-debugging-port=(\d+)/);
+    if (match?.[1]) return parseInt(match[1], 10);
+  } catch {
+    // Process may have exited or CIM query failed
+  }
   return undefined;
 }
 

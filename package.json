@@ -1,6 +1,6 @@
 {
   "name": "thunder-eye",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI gets eyes into desktop apps — MCP server for visual perception of Electron, Tauri, Flutter, Qt, and native applications",
   "main": "dist/index.js",
   "type": "module",

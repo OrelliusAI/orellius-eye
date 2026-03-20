@@ -18,6 +18,8 @@ export async function captureNative(options: NativeCaptureOptions): Promise<Scre
       captureMacOS(tmpFile, options.windowTitle);
     } else if (platform === "linux") {
       captureLinux(tmpFile, options.windowTitle);
+    } else if (platform === "win32") {
+      captureWindows(tmpFile, options.windowTitle);
     } else {
       throw new Error(`Unsupported platform: ${platform}`);
     }
@@ -66,6 +68,25 @@ export async function captureNative(options: NativeCaptureOptions): Promise<Scre
       // Cleanup is best-effort
     }
   }
+}
+
+function captureWindows(outputPath: string, _windowTitle?: string): void {
+  // Use PowerShell with .NET System.Drawing to capture the primary screen
+  // Window-specific capture on Windows requires user32.dll PrintWindow which is
+  // unreliable across DPI settings, so we capture the full primary screen consistently.
+  const safePath = outputPath.replace(/'/g, "''");
+  const script = `
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName System.Drawing
+    $screen = [System.Windows.Forms.Screen]::PrimaryScreen
+    $bitmap = New-Object System.Drawing.Bitmap($screen.Bounds.Width, $screen.Bounds.Height)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $graphics.CopyFromScreen($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size)
+    $bitmap.Save('${safePath}')
+    $graphics.Dispose()
+    $bitmap.Dispose()
+  `;
+  execSync(`powershell -NoProfile -Command "${script}"`, { timeout: 10000 });
 }
 
 function captureMacOS(outputPath: string, windowTitle?: string): void {

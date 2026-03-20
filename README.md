@@ -14,7 +14,7 @@
   <a href="https://orellius.ai"><img src="https://img.shields.io/badge/by-Orellius.ai-05a0ef" alt="Orellius" /></a>
   <a href="https://github.com/Orellius/Thunder"><img src="https://img.shields.io/badge/ecosystem-Thunder-10b981" alt="Thunder" /></a>
   <img src="https://img.shields.io/badge/MCP-compatible-8b5cf6" alt="MCP Compatible" />
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-333" alt="Platform" />
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-333" alt="Platform" />
 </p>
 
 <p align="center">
@@ -105,6 +105,7 @@ Thunder Eye uses a layered detection strategy:
 
 - **macOS**: Accessibility permissions must be granted in System Settings > Privacy & Security > Accessibility
 - **Linux**: `wmctrl` or `xdotool` for window management, `import` (ImageMagick) for screenshots
+- **Windows**: PowerShell 5.1+ (built-in), .NET Framework for UI Automation
 - **Node.js**: 18+
 
 ---

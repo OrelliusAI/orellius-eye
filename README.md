@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/orellius-logo.png" alt="Orellius" width="100" />
+  <img src="assets/mini-orellius.png" alt="Orellius" width="80" />
 </p>
 
 <h1 align="center">Thunder Eye</h1>

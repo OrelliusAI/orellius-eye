@@ -1,124 +1,61 @@
 <p align="center">
-  <img src="assets/mini-orellius.png" alt="Orellius" width="80" />
+  <img src=".github/icon.png" width="120" alt="Orellius Labs" />
 </p>
 
-<h1 align="center">Thunder Eye</h1>
-
-<p align="center">
-  <strong>AI gets eyes into desktop apps.</strong>
-</p>
+<h3 align="center">Orellius Eye</h3>
+<p align="center">Visual perception MCP server — screenshots, UI inspection, element detection.</p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/thunder-eye"><img src="https://img.shields.io/npm/v/thunder-eye.svg?color=05a0ef" alt="npm" /></a>
-  <a href="https://github.com/Orellius/thunder-eye/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://orellius.ai"><img src="https://img.shields.io/badge/by-Orellius.ai-05a0ef" alt="Orellius" /></a>
-  <a href="https://github.com/Orellius/Thunder"><img src="https://img.shields.io/badge/ecosystem-Thunder-10b981" alt="Thunder" /></a>
-  <img src="https://img.shields.io/badge/MCP-compatible-8b5cf6" alt="MCP Compatible" />
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-333" alt="Platform" />
+  <a href="https://orellius.ai">Website</a> · 
+  <a href="https://github.com/OrelliusAI">GitHub</a>
 </p>
 
-<p align="center">
-  An MCP server that gives AI coding agents (Claude Code, Cursor, Windsurf) visual perception of running desktop applications.<br/>
-  Auto-detects the framework, captures screenshots, inspects UI trees, and finds elements — so the AI can actually <em>see</em> what you see.
-</p>
+---
+
+## What it does
+
+Gives AI agents visual perception of running desktop applications. Takes screenshots, inspects UI trees, finds elements by text or role, and reports window geometry. Works across Electron, Tauri, Flutter, Qt, and SwiftUI apps.
 
 ## Install
 
 ```bash
-npm install -g thunder-eye
+npx orellius-eye
 ```
 
-Or clone and build locally:
+Or globally:
 
 ```bash
-git clone https://github.com/Orellius/thunder-eye.git
-cd thunder-eye
-npm install
-npm run build
+npm install -g orellius-eye
 ```
 
----
+## Quick start
 
-## Supported Frameworks
-
-| Framework | Screenshot | UI Inspection | Element Finding |
-|-----------|:---------:|:-------------:|:---------------:|
-| **Electron** (VS Code, Discord, Figma) | CDP | Accessibility Tree | Yes |
-| **Tauri** (Thunder, CrabNebula) | CDP / Native | Accessibility Tree | Yes |
-| **Flutter** | Native | DevTools (planned) | Planned |
-| **Qt** (OBS, VLC) | Native | AT-SPI (planned) | Planned |
-| **GTK** (GIMP, Inkscape) | Native | AT-SPI (planned) | Planned |
-| **SwiftUI / AppKit** | Native | macOS Accessibility | Yes |
-| **Any other app** | Native | — | — |
-
-## Quick Start
-
-### With Claude Code
-```bash
-claude mcp add thunder-eye node ~/path/to/thunder-eye/dist/index.js
-```
-
-### With Cursor / VS Code
 Add to your MCP config:
+
 ```json
 {
   "mcpServers": {
-    "thunder-eye": {
-      "command": "node",
-      "args": ["/path/to/thunder-eye/dist/index.js"]
+    "eye": {
+      "command": "npx",
+      "args": ["orellius-eye"]
     }
   }
 }
 ```
 
-## Tools
+## Features
 
-### `screenshot`
-Capture a screenshot of any running desktop app. The AI can analyze it visually.
+- 6 tools: screenshot, detect_app, inspect_ui, find_element, get_window_info, list_windows
+- CDP (Chrome DevTools Protocol) + accessibility API support
+- Cross-platform: macOS, Linux, Windows
+- Works with Electron, Tauri, Flutter, Qt, SwiftUI apps
+- Image optimization via sharp
+- Element detection by text, role, or CSS selector
 
-> "Take a look at the app" → AI captures screenshot → "I can see the button is misaligned..."
+## Tech stack
 
-### `detect_app`
-Auto-detect what desktop apps are running and their frameworks.
-
-### `inspect_ui`
-Get the accessibility tree / component hierarchy without a screenshot.
-
-### `find_element`
-Search for UI elements by text or role.
-
-### `get_window_info`
-Get window dimensions, position, and framework info.
-
-### `list_windows`
-List all visible app windows.
-
-## How It Works
-
-Thunder Eye uses a layered detection strategy:
-
-1. **Chromium DevTools Protocol (CDP)** — For Electron, Tauri, CEF, and other Chromium-based apps. Highest fidelity screenshots and full DOM/accessibility tree access.
-2. **OS Accessibility APIs** — For native apps (SwiftUI, AppKit, Qt). Uses macOS Accessibility framework or Linux AT-SPI.
-3. **Native screencapture** — Universal fallback. Works with any app on any framework.
-
-## Requirements
-
-- **macOS**: Accessibility permissions must be granted in System Settings > Privacy & Security > Accessibility
-- **Linux**: `wmctrl` or `xdotool` for window management, `import` (ImageMagick) for screenshots
-- **Windows**: PowerShell 5.1+ (built-in), .NET Framework for UI Automation
-- **Node.js**: 18+
-
----
-
-<p align="center">
-  Built with care by <a href="https://orellius.ai"><strong>Orellius.ai</strong></a><br/>
-  Part of the <a href="https://github.com/Orellius/Thunder"><strong>Thunder</strong></a> ecosystem — the AI-powered multi-agent coding orchestrator.
-</p>
-
-<p align="center">
-  <a href="https://orellius.ai">Website</a> · <a href="https://github.com/Orellius/Thunder">Thunder</a> · <a href="https://github.com/Orellius/thunder-thinking">Thunder Thinking</a> · <a href="https://github.com/Orellius/thunder-eye">Thunder Eye</a>
-</p>
+TypeScript, MCP SDK, chrome-remote-interface, sharp
 
 ## License
 
-[MIT](LICENSE) — use it however you want.
+MIT — [Orellius Labs](https://orellius.ai)
